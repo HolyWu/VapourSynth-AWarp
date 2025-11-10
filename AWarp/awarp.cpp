@@ -323,9 +323,11 @@ static void VS_CC aWarpCreate(const VSMap* in, VSMap* out, [[maybe_unused]] void
             (d->process[1] || d->process[2]) &&
             (d->vi->format.subSamplingW > 0 || d->vi->format.subSamplingH > 0)) {
             auto args = vsapi->createMap();
-            vsapi->mapSetNode(args, "clips", d->mask, maReplace);
-            vsapi->mapSetInt(args, "planes", 0, maReplace);
-            vsapi->mapSetInt(args, "colorfamily", cfGray, maReplace);
+            vsapi->mapConsumeNode(args, "clips", d->mask, maReplace);
+            const int64_t planes[] = { 0, 0, 0 };
+            vsapi->mapSetIntArray(args, "planes", planes, 3);
+            vsapi->mapSetInt(args, "colorfamily", cfYUV, maReplace);
+            vsapi->mapSetNode(args, "prop_src", d->node, maReplace);
 
             auto ret = vsapi->invoke(vsapi->getPluginByID(VSH_STD_PLUGIN_ID, core), "ShufflePlanes", args);
             if (vsapi->mapGetError(ret)) {
@@ -333,35 +335,23 @@ static void VS_CC aWarpCreate(const VSMap* in, VSMap* out, [[maybe_unused]] void
                 vsapi->freeMap(ret);
                 vsapi->freeMap(args);
                 vsapi->freeNode(d->node);
-                vsapi->freeNode(d->mask);
                 return;
             }
 
             vsapi->clearMap(args);
             vsapi->mapConsumeNode(args, "clip", vsapi->mapGetNode(ret, "clip", 0, nullptr), maReplace);
-            vsapi->mapSetInt(args, "width", d->vi->width >> d->vi->format.subSamplingW, maReplace);
-            vsapi->mapSetInt(args, "height", d->vi->height >> d->vi->format.subSamplingH, maReplace);
+            vsapi->mapSetInt(args,
+                             "format",
+                             vsapi->queryVideoFormatID(d->vi->format.colorFamily,
+                                                       d->vi->format.sampleType,
+                                                       d->vi->format.bitsPerSample,
+                                                       d->vi->format.subSamplingW,
+                                                       d->vi->format.subSamplingH,
+                                                       core),
+                             maReplace);
             vsapi->freeMap(ret);
 
             ret = vsapi->invoke(vsapi->getPluginByID(VSH_RESIZE_PLUGIN_ID, core), "Bilinear", args);
-            if (vsapi->mapGetError(ret)) {
-                vsapi->mapSetError(out, vsapi->mapGetError(ret));
-                vsapi->freeMap(ret);
-                vsapi->freeMap(args);
-                vsapi->freeNode(d->node);
-                vsapi->freeNode(d->mask);
-                return;
-            }
-
-            vsapi->clearMap(args);
-            vsapi->mapConsumeNode(args, "clips", d->mask, maAppend);
-            vsapi->mapConsumeNode(args, "clips", vsapi->mapGetNode(ret, "clip", 0, nullptr), maAppend);
-            const int64_t planes[] = { 0, 0, 0 };
-            vsapi->mapSetIntArray(args, "planes", planes, 3);
-            vsapi->mapSetInt(args, "colorfamily", cfYUV, maReplace);
-            vsapi->freeMap(ret);
-
-            ret = vsapi->invoke(vsapi->getPluginByID(VSH_STD_PLUGIN_ID, core), "ShufflePlanes", args);
             if (vsapi->mapGetError(ret)) {
                 vsapi->mapSetError(out, vsapi->mapGetError(ret));
                 vsapi->freeMap(ret);
