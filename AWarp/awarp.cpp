@@ -389,7 +389,7 @@ VS_EXTERNAL_API(void) VapourSynthPluginInit2(VSPlugin* plugin, const VSPLUGINAPI
     vspapi->configPlugin("com.holywu.awarp",
                          "awarp",
                          "AWarp filter from AWarpSharp2",
-                         VS_MAKE_VERSION(1, 0),
+                         VS_MAKE_VERSION(2, 0),
                          VAPOURSYNTH_API_VERSION,
                          0,
                          plugin);
