@@ -20,10 +20,8 @@ awarp.AWarp(vnode clip, vnode mask[, int[] depth_h=3, int[] depth_v=depth_h, bin
 - planes: Specifies which planes will be processed. Any unprocessed planes will be simply copied, except when `clip` has four times the size of `mask`, in which case the unprocessed planes will contain uninitialised memory.
 
 
-## Compilation
+## Installation
 
 ```
-meson build
-ninja -C build
-ninja -C build install
+pip install -U vapoursynth-awarp
 ```

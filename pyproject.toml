@@ -1,0 +1,32 @@
+[build-system]
+requires = ["meson-python", "VapourSynth>=74"]
+build-backend = "mesonpy"
+
+[project]
+name = "vapoursynth-awarp"
+description = "AWarp filter from AWarpSharp2"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["vapoursynth", "awarp"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Plugins",
+  "Natural Language :: English",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Operating System :: Unix",
+  "Programming Language :: C++",
+  "Topic :: Multimedia :: Video",
+]
+dependencies = ["VapourSynth>=74"]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/HolyWu/VapourSynth-AWarp"
+Issues = "https://github.com/HolyWu/VapourSynth-AWarp/issues"
+
+[tool.meson-python.wheel]
+exclude = ["*.dll.a"]
